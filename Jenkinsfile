@@ -1,111 +1,115 @@
 pipeline {
 
-	agent any
+    agent any
 
-	parameters {
+    parameters {
 
-		choice(name: 'VERSION', choices: ['1.1.0','1.2.0','1.3.0'], description: '')
+        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'], description: 'Select the version to deploy')
 
-		booleanParam(name: 'executeTests', defaultValue: true, description: '')
+        booleanParam(name: 'executeTests', defaultValue: true, description: 'Execute Tests')
 
-	}
+    }
 
-	stages {
+    stages {
 
-		stage("init") {
+        stage("init") {
 
-			steps {
+            steps {
 
-				script {
+                script {
 
-					gv = load "script.groovy"
+                    gv = load "script.groovy"
 
-				}
+                }
 
-			}
+            }
 
-		}
+        }
 
-		stage("Checkout") {
+        stage("Checkout") {
 
-			steps {
+            steps {
 
-				checkout scm
+                checkout scm
 
-			}
+            }
 
-		}
+        }
 
-		stage("Build") {
+        stage("Build") {
 
-			steps {
+            steps {
 
-				sh 'docker build -t flask-jenkins:v1.0.0, lask_jenkins:latest .'
+                // Corrected Docker build command
 
-			}
+                sh "docker build -t flask-jenkins:${params.VERSION} ."
 
-		}
+            }
 
-		stage("test") {
+        }
 
-			when {
+        stage("test") {
 
-				expression {
+            when {
 
-					params.executeTests
+                expression {
 
-				}
+                    params.executeTests
 
-			}
+                }
 
-			steps {
+            }
 
-				script {
+            steps {
 
-					gv.testApp()
+                script {
 
-				}
+                    gv.testApp()
 
-			}
+                }
 
-		}
+            }
 
-		stage("Tag and Push") {
+        }
 
-			steps {
+        stage("Tag and Push") {
 
-				withCredentials([[$class: 'UsernamePasswordMultiBinding',
+            steps {
 
-				credentialsId: 'docker-hub', 
+                withCredentials([[$class: 'UsernamePasswordMultiBinding',
 
-				usernameVariable: 'DOCKER_USER_ID', 
+                credentialsId: 'docker-hub', 
 
-				passwordVariable: 'DOCKER_USER_PASSWORD'
+                usernameVariable: 'DOCKER_USER_ID', 
 
-				]]) {
+                passwordVariable: 'DOCKER_USER_PASSWORD'
 
-					sh "docker tag flask-jenkins:latest ${DOCKER_USER_ID}/jenkins-app:${BUILD_NUMBER}"
+                ]]) {
 
-					sh "docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}"
+                    sh "docker tag flask-jenkins:${params.VERSION} ${DOCKER_USER_ID}/jenkins-app:${params.VERSION}"
 
-					sh "docker push ${DOCKER_USER_ID}/jenkins-app:${BUILD_NUMBER}"
+                    sh "docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}"
 
-				}
+                    sh "docker push ${DOCKER_USER_ID}/jenkins-app:${params.VERSION}"
 
-			}
+                }
 
-		}
+            }
 
-		stage("deploy") {
+        }
 
-			steps {
+        stage("deploy") {
 
-				echo 'deploying the applicaiton...'
+            steps {
 
-			}
+                echo 'deploying the application...'
 
-		}
+            }
 
-	}
+        }
+
+    }
 
 }
+
+
