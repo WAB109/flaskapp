@@ -2,21 +2,39 @@ pipeline {
 
     agent any
 
-    environment {
+    parameters {
 
-        NEW_VERSION = '1.0.0'
+        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'], description: 'Select the version')
+
+        booleanParam(name: 'executeTests', defaultValue: true, description: 'Execute Tests')
 
     }
 
     stages {
 
+        stage("init") {
+
+            steps {
+
+                script {
+
+                    gv = load "script.groovy"
+
+                }
+
+            }
+
+        }
+
         stage("build") {
 
             steps {
 
-                echo 'building the application...'
+                script {
 
-                echo "building version ${NEW_VERSION}"
+                    gv.buildApp()
+
+                }
 
             }
 
@@ -24,9 +42,23 @@ pipeline {
 
         stage("test") {
 
+            when {
+
+                expression {
+
+                    return params.executeTests
+
+                }
+
+            }
+
             steps {
 
-                echo 'testing the application...'
+                script {
+
+                    gv.testApp()
+
+                }
 
             }
 
@@ -36,19 +68,9 @@ pipeline {
 
             steps {
 
-                echo 'deploying the application...'
+                script {
 
-                withCredentials([[$class: 'UsernamePasswordMultiBinding',
-
-                                 credentialsId: 'admin_user_credentials',
-
-                                 usernameVariable: 'USER',
-
-                                 passwordVariable: 'PWD'
-
-                ]]) {
-
-                    sh 'printf ${USER}'
+                    gv.deployApp()
 
                 }
 
