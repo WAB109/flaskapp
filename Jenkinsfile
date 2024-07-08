@@ -1,61 +1,61 @@
 pipeline {
 
-   agent any
+    agent any
 
-   stages {
+    stages {
 
-      stage("build") {
+        stage('build') {
 
-         steps {
+            when {
 
-            echo 'building the applicaiton...'
+                expression {
 
-         }
+                    env.GIT_BRANCH == 'origin/master'
 
-      }
+                }
 
-      stage("test") {
+            }
 
-         steps {
+            steps {
 
-            echo 'testing the applicaiton...'
+                echo 'building the application...'
 
-         }
+            }
 
-      }
+        }
 
-      stage("deploy") {
+        stage('test') {
 
-         steps {
+            when {
 
-            echo 'deploying the applicaiton...'
+                expression {
 
-         }
+                    env.GIT_BRANCH == 'origin/test' || env.GIT_BRANCH == ''
 
-      }
+                }
 
-   }
+            }
 
-   post {
+            steps {
 
-         always {
+                echo 'testing the application...'
 
-            echo 'building..'
+            }
 
-         }
+        }
 
-         success {
+        stage('deploy') {
 
-               echo 'success'
+            steps {
 
-         }
+                echo 'deploying the application...'
 
-         failure {
+            }
 
-               echo 'failure'
+        }
 
-         }
+    }
 
-      }
+}
 
-   }
+
