@@ -4,13 +4,13 @@ kind: Pod
 
 metadata:
 
-  name: flaskapp-pod
+  name: flaskpod
 
 spec:
 
   containers:
 
-  - name: flaskapp-pod
+  - name: flask
 
     image: wab109/flaskapp:latest
 
