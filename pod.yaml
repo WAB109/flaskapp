@@ -4,16 +4,16 @@ kind: Pod
 
 metadata:
 
-  name: nginx
+  name: flaskapp-pod
 
 spec:
 
   containers:
 
-  - name: nginx
+  - name: flaskapp-pod
 
-    image: nginx:1.14.2
+    image: wab109/flaskapp:latest
 
     ports:
 
-    - containerPort: 80
+    - containerPort: 5000
