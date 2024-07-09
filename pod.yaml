@@ -16,4 +16,6 @@ spec:
 
     ports:
 
-    - containerPort: 5000
+            - containerPort: 5000
+  imagePullSecrets:
+  - name: docker-pull-secret
